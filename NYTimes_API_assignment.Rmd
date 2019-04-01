@@ -1,0 +1,59 @@
+---
+title: "NYTimes_API"
+author: "ODONNELL"
+date: "March 31, 2019"
+output: html_document
+---
+
+Assignment: Construct an interface in R to read in JSON data
+from a NY Times API and turn it into a dataframe.
+
+storing my API Key
+```{r}
+NYTIMES_KEY="LCb20T9B6ElAt06GRGVlGzyl3PNF7Kzq"
+```
+
+load jsonlite package
+```{r}
+library(jsonlite)
+```
+
+search National Parks articles from the NY Times API
+```{r}
+library(tidyr)
+library(dplyr)
+
+NYTimes_df <- fromJSON("http://api.nytimes.com/svc/search/v2/articlesearch.json?q=national+park&api-key=LCb20T9B6ElAt06GRGVlGzyl3PNF7Kzq", flatten = TRUE) %>% data.frame()
+```
+
+Cool! Now the information about National Park articles on NY Times
+is stored as a DataFrame.
+
+Now, to clean up the dataframe
+
+removing some unneeded columns
+```{r}
+NYTimes_df <- NYTimes_df %>%
+  select(response.docs.headline.main, response.docs.byline.original,
+         response.docs.type_of_material, response.docs.news_desk,
+         response.docs.source, response.docs.abstract,
+         response.docs.word_count, response.docs.snippet,
+         response.docs.lead_paragraph, response.docs.keywords)
+```
+
+For fun, some high level frequency counts
+```{r}
+NYTimes_df %>%
+  group_by(response.docs.type_of_material, response.docs.news_desk) %>%
+  summarise(freq = n()) %>%
+  arrange(desc(freq))
+```
+
+```{r}
+NYTimes_df %>%
+  group_by(response.docs.byline.original) %>%
+  summarise(freq = n()) %>%
+  arrange(desc(freq))
+```
+
+
